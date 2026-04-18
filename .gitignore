@@ -9,6 +9,7 @@ models/oof/
 models/headline_features_public.csv
 models/headline_features_train.csv
 models/old_headline_features/
+artifacts/finbert_cls_embeddings.parquet
 
 # Ad-hoc ChatGPT experiment workspace
 submissions/chatgpt/

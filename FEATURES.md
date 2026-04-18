@@ -68,7 +68,10 @@ Then `shape_positions(pred, vol, "thresholded_inv_vol", threshold_q=0.35)`:
 The drift is positive and unconditional, so the constant-long blend and short
 floor dominate; the model's job is to modulate size, not to flip sign often.
 
-## Leaderboard results (current session)
-- **2.583** — seed-5 CatBoost ensemble (validated LB-positive lever)
-- 2.576 — kill-shorts variant (all negative preds → 0 before shaping)
-- 2.570 — baseline single-seed CatBoost
+## Leaderboard — current champion is Ridge, not CatBoost
+
+**2.667** — `ridge_all_strong.csv` (strong-α Ridge on the same 40 columns).
+CatBoost capped at 2.586; Ridge broke through by removing interaction capacity
+that was fitting 1k-train idiosyncrasies.
+
+Full LB history and analysis in [STATUS.md](STATUS.md).
