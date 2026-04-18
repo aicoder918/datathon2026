@@ -1,0 +1,147 @@
+Datathon 2026 — Strategy Exploration Summary
+==============================================
+
+PROBLEM
+-------
+Per-session scalar target_position. Score = Sharpe(pnl)·16 where
+pnl_i = position_i · (close_99/close_49 − 1). 1,000 train sessions,
+10,000 public + 10,000 private test sessions. 50 seen OHLC bars +
+~10 headlines (bar_ix ≤ 49) per session. FinBERT sentiment precomputed.
+
+Target stats on train: mean r ≈ +0.00356, std ≈ 0.02012, P(r>0) ≈ 57.7%.
+
+FIRST-PRINCIPLES FRAMEWORK
+--------------------------
+Sharpe-optimal Kelly-style position:
+    p_i ∝ (μ_i + γ) / σ²_i
+Decomposed into:
+  - Mean head:     μ̂ = Ridge(standardized features)
+  - Variance head: σ̂² = exp(Ridge on log((r-r̄)²)), floored at median
+  - Position rule: winsorize, normalize by median(|raw|), shrink toward
+                   p_const=1 with weight λ
+    p = (1-λ)·1 + λ·(winsorized raw / median)
+
+ROOT CAUSES OF PRIOR OVERFIT (designed against)
+-----------------------------------------------
+1. Forward leakage: fwd_log_vol_k5, ThisCompany/Sector columns used
+   future or train-wide aggregates. REMOVED — rebuilt features.py from
+   scratch, all features strictly per-session on bars 0..49.
+2. Parameter/sample ratio: 150+ one-hot columns on N=1000. REMOVED —
+   capped at 22 base features.
+3. Post-processing tuned on same folds as model. FIX: nested CV
+   (10-fold outer × 5-fold inner), bootstrap CI (2000 resamples).
+4. No shrinkage to known prior (constant-long Sharpe ≈ 2.77 on train,
+   2.21 on LB). FIX: λ-shrinkage + 1.5·SE acceptance gate.
+
+FEATURES BUILT (22 base, per-session, zero leakage)
+---------------------------------------------------
+Price (12): ret_total, ret_last5, ret_last10, ret_last20, rv,
+            rv_late_ratio, rv_last10, pk_vol, trend_slope_norm,
+            drawdown, acf1, body_frac.
+Headline (10): n_headlines, sent_sum, sent_recent_w, sent_exp_w,
+               sent_last10, sent_neg_sum, last_hl_signed, last_hl_age,
+               sent_change, neg_frac.
+Stable-13 subset (coef-sign consistent ≥ 9/10 outer folds):
+    ret_total, ret_last5, ret_last20, pk_vol, drawdown,
+    n_headlines, sent_sum, sent_recent_w, sent_last10,
+    sent_neg_sum, last_hl_age, sent_change, neg_frac.
+
+Variance-head features: rv, pk_vol, rv_late_ratio, rv_last10,
+                        n_headlines, sent_last10.
+
+KEY EMPIRICAL FINDINGS
+----------------------
+- All directional signal lives in bars 40-49: corr(sent_last10, r)
+  = +0.059, sentiment in earlier bins ~0.
+- 80 distinct fictional companies shared across train/test.
+- 632 distinct headline templates; top 14 cover ~31% of all headlines.
+- Primary-company filter (entity = first 2 words of headline) actively
+  HURTS signal: corr(primary_sent_last10, r) = +0.019 << +0.059.
+  Most session-relevant signal is NOT company-specific — we can't
+  reliably identify which of the 80 companies is each session's target.
+
+VARIANTS TESTED (pooled OOF CV Sharpe, bootstrap SE ≈ 0.50)
+-----------------------------------------------------------
+Baseline constant_long:                               2.765
+v1 (stable13, α=100, λ=1, γ=0.006):                   2.793  ★ LB 2.41
+ridge stable13 α=100 λ=0.5:                           2.812  (LB 2.33)
+ridge stable13 α=100 λ=0.75:                          2.809
+ridge stable13 α=300 λ=1:                             2.791
+ridge ALL 22 feats α=300 λ=1:                         2.713
+ridge ALL 22 feats α=1000 λ=1:                        2.743
+ridge stable13 + templates (Bayesian-shrunk OOF):     2.451  (p_std blew up)
+ridge ALL 22 + templates:                             2.339
+ridge stable13 + 6 interaction feats:                 2.678
+ridge late-focus (13 bar-40-49 feats):                2.759
+ridge late-focus + 3 interactions:                    2.673
+CatBoost stable13 depth=3:                            2.662
+CatBoost stable13 depth=2:                            2.653
+vol-targeted only (p = 1/σ², no mean head):           2.749
+ENS ridge α=100 + ridge α=300:                        2.793
+ENS ridge + CatBoost (equal weight):                  2.745
+ENS ridge + constant-long (i.e., λ=0.5):              2.812
+ENS ridge + vol-targeted:                             2.804
+
+LB-TESTED SUBMISSIONS (what we know)
+------------------------------------
+sharpe_constant.csv       (p=1)                          LB 2.21196
+sharpe_v1.csv             (stable13, α=100, λ=1)         LB 2.40737
+sharpe_v1_lam05.csv       (stable13, α=100, λ=0.5)       LB 2.32929
+sharpe_v2.csv             (inner-CV picked α=10, λ=1)    LB 2.32718
+catboost_bars.csv         (old pipeline)                 ≈ LB 2.1
+Team leader (published):                                 2.86
+
+v2's regression diagnosis:
+- Inner CV picked α=10 (vs v1's α=100) → weaker regularization →
+  p_std 0.32 vs 0.25, p_min 0.26 vs 0.40 → more wrong-way bets.
+- Reinforces: DO NOT tune hyperparameters via CV on this noise floor.
+
+FAILED APPROACHES & WHY
+-----------------------
+1. Template impact (Bayesian-shrunk target encoding on 632 templates):
+   pushed p_std to 0.68 and dropped corr(μ̂,r) from 0.08 to 0.03. Too
+   little data per template (median ~15 sessions) → noise dominates.
+2. Interaction features (sent_last10 × rv, neg × drawdown, etc.): all
+   hurt CV by ~0.1 Sharpe. No interactions survive regularization.
+3. Primary-company relevance features: hurt because the target stock
+   identity isn't reliably derivable from headline-entity frequency.
+4. CatBoost mean head (depth 2–3, 300–400 iterations, l2=10–20):
+   consistently 0.10-0.15 below Ridge. Tree-based overfitting shows
+   up at N=1000 even with strong regularization.
+5. Ensembles (Ridge+CatBoost, Ridge+Ridge at different α): within
+   CV noise of v1. No diversification benefit because all models
+   draw signal from the same thin ~bar-40-49 feature band.
+6. Higher-λ shrinkage to constant-long (λ=0.5, 0.75): CV barely
+   improves (+0.02), but LB gets WORSE — CV signal reversed from LB.
+
+WHY THE CV→LB GAP
+-----------------
+v1: CV 2.793 → LB 2.407 (gap 0.39)
+constant_long: CV 2.765 → LB 2.212 (gap 0.55)
+Ridge ACTUALLY has a smaller gap than constant-long, suggesting the
+model is capturing real signal. But the gap magnitude (~0.5·SE)
+indicates genuine distribution shift between train (1k sessions)
+and test (10k public + 10k private). Cannot be closed by CV tuning.
+
+CONCLUSION
+----------
+Ship v1 (sharpe_v1.csv, LB 2.407). All attempts to beat it in CV
+have been within ±1·SE = noise. The 0.45-Sharpe gap to leader (2.86)
+is ~1·SE — either they've found a structurally different signal
+(candidate: robust session-target-stock identification from bar
+microstructure, which we couldn't get) or public LB luck. Further
+CV iteration is selection bias, not progress.
+
+FILES
+-----
+models/features.py         — 22 leakage-free per-session features
+models/sharpe_model.py     — Ridge mean head, log-linear var head,
+                             position rule with winsorize+shrink
+models/cv_evaluate.py      — nested CV harness + bootstrap CI
+models/predict.py          — end-to-end submission builder
+models/compare_v2.py       — static variant comparator
+models/cv_evaluate_v3.py   — CV with OOF template features
+models/cv_explore_v3.py    — feature-set/interaction sweep
+models/cv_explore_v4.py    — α/λ/ensemble sweep
+models/template_impact.py  — OOF Bayesian template encoding
+submissions/sharpe_v1.csv  — ★ our best (LB 2.407)

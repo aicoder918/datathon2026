@@ -1,0 +1,748 @@
+{
+  "best": {
+    "trial": 9,
+    "cat": {
+      "depth": 5,
+      "learning_rate": 0.03,
+      "l2_leaf_reg": 5.0,
+      "iterations": 1200
+    },
+    "post": {
+      "kind": "sign",
+      "threshold_q": 0.25,
+      "shrink_alpha": 0.05,
+      "short_floor": 0.0,
+      "split_sharpes": [
+        4.874,
+        1.8,
+        2.776,
+        2.251,
+        3.81
+      ]
+    },
+    "mean_raw_sharpe": 3.1023,
+    "sec": 4.4
+  },
+  "log": [
+    {
+      "trial": 0,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 3.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.922,
+          1.746,
+          2.778,
+          2.213,
+          3.715
+        ]
+      },
+      "mean_raw_sharpe": 3.0747,
+      "sec": 2.3
+    },
+    {
+      "trial": 1,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 3.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.893,
+          1.764,
+          2.762,
+          2.24,
+          3.745
+        ]
+      },
+      "mean_raw_sharpe": 3.0807,
+      "sec": 1.7
+    },
+    {
+      "trial": 2,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.02,
+        "l2_leaf_reg": 3.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.902,
+          1.763,
+          2.795,
+          2.212,
+          3.738
+        ]
+      },
+      "mean_raw_sharpe": 3.0821,
+      "sec": 6.7
+    },
+    {
+      "trial": 3,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 10.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.909,
+          1.734,
+          2.795,
+          2.25,
+          3.727
+        ]
+      },
+      "mean_raw_sharpe": 3.0831,
+      "sec": 1.1
+    },
+    {
+      "trial": 4,
+      "cat": {
+        "depth": 7,
+        "learning_rate": 0.08,
+        "l2_leaf_reg": 3.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.844,
+          1.842,
+          2.822,
+          2.188,
+          3.76
+        ]
+      },
+      "mean_raw_sharpe": 3.0912,
+      "sec": 5.4
+    },
+    {
+      "trial": 5,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 5.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.852,
+          1.792,
+          2.721,
+          2.248,
+          3.74
+        ]
+      },
+      "mean_raw_sharpe": 3.0705,
+      "sec": 2.2
+    },
+    {
+      "trial": 6,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.08,
+        "l2_leaf_reg": 3.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.839,
+          1.781,
+          2.764,
+          2.248,
+          3.778
+        ]
+      },
+      "mean_raw_sharpe": 3.0819,
+      "sec": 3.0
+    },
+    {
+      "trial": 7,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.956,
+          1.747,
+          2.782,
+          2.217,
+          3.736
+        ]
+      },
+      "mean_raw_sharpe": 3.0877,
+      "sec": 1.5
+    },
+    {
+      "trial": 8,
+      "cat": {
+        "depth": 7,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 3.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.866,
+          1.756,
+          2.837,
+          2.237,
+          3.776
+        ]
+      },
+      "mean_raw_sharpe": 3.0944,
+      "sec": 2.7
+    },
+    {
+      "trial": 9,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 5.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.874,
+          1.8,
+          2.776,
+          2.251,
+          3.81
+        ]
+      },
+      "mean_raw_sharpe": 3.1023,
+      "sec": 4.4
+    },
+    {
+      "trial": 10,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.08,
+        "l2_leaf_reg": 3.0,
+        "iterations": 900
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.856,
+          1.781,
+          2.741,
+          2.25,
+          3.779
+        ]
+      },
+      "mean_raw_sharpe": 3.0812,
+      "sec": 2.3
+    },
+    {
+      "trial": 11,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.9,
+          1.746,
+          2.799,
+          2.209,
+          3.746
+        ]
+      },
+      "mean_raw_sharpe": 3.0798,
+      "sec": 4.4
+    },
+    {
+      "trial": 12,
+      "cat": {
+        "depth": 7,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.796,
+          1.842,
+          2.798,
+          2.254,
+          3.749
+        ]
+      },
+      "mean_raw_sharpe": 3.0878,
+      "sec": 10.9
+    },
+    {
+      "trial": 13,
+      "cat": {
+        "depth": 7,
+        "learning_rate": 0.08,
+        "l2_leaf_reg": 1.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.864,
+          1.782,
+          2.796,
+          2.224,
+          3.796
+        ]
+      },
+      "mean_raw_sharpe": 3.0926,
+      "sec": 2.7
+    },
+    {
+      "trial": 14,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.02,
+        "l2_leaf_reg": 10.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.911,
+          1.796,
+          2.778,
+          2.236,
+          3.726
+        ]
+      },
+      "mean_raw_sharpe": 3.0891,
+      "sec": 6.7
+    },
+    {
+      "trial": 15,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.02,
+        "l2_leaf_reg": 1.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "inv_vol",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.935,
+          1.757,
+          2.793,
+          2.201,
+          3.738
+        ]
+      },
+      "mean_raw_sharpe": 3.0847,
+      "sec": 1.5
+    },
+    {
+      "trial": 16,
+      "cat": {
+        "depth": 7,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 5.0,
+        "iterations": 900
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.881,
+          1.759,
+          2.771,
+          2.192,
+          3.758
+        ]
+      },
+      "mean_raw_sharpe": 3.0721,
+      "sec": 8.0
+    },
+    {
+      "trial": 17,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.02,
+        "l2_leaf_reg": 5.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.909,
+          1.748,
+          2.79,
+          2.202,
+          3.74
+        ]
+      },
+      "mean_raw_sharpe": 3.0775,
+      "sec": 3.4
+    },
+    {
+      "trial": 18,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.907,
+          1.786,
+          2.747,
+          2.254,
+          3.712
+        ]
+      },
+      "mean_raw_sharpe": 3.0812,
+      "sec": 0.8
+    },
+    {
+      "trial": 19,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10.0,
+        "iterations": 900
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.909,
+          1.798,
+          2.802,
+          2.204,
+          3.741
+        ]
+      },
+      "mean_raw_sharpe": 3.0906,
+      "sec": 5.0
+    },
+    {
+      "trial": 20,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 5.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.912,
+          1.73,
+          2.773,
+          2.207,
+          3.742
+        ]
+      },
+      "mean_raw_sharpe": 3.0728,
+      "sec": 1.6
+    },
+    {
+      "trial": 21,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 3.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.926,
+          1.769,
+          2.766,
+          2.231,
+          3.703
+        ]
+      },
+      "mean_raw_sharpe": 3.079,
+      "sec": 1.1
+    },
+    {
+      "trial": 22,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.923,
+          1.777,
+          2.808,
+          2.181,
+          3.712
+        ]
+      },
+      "mean_raw_sharpe": 3.0801,
+      "sec": 1.7
+    },
+    {
+      "trial": 23,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 10.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.972,
+          1.759,
+          2.773,
+          2.182,
+          3.771
+        ]
+      },
+      "mean_raw_sharpe": 3.0911,
+      "sec": 1.7
+    },
+    {
+      "trial": 24,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 1.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.836,
+          1.777,
+          2.822,
+          2.257,
+          3.786
+        ]
+      },
+      "mean_raw_sharpe": 3.0953,
+      "sec": 4.4
+    },
+    {
+      "trial": 25,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 3.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "sign",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.899,
+          1.84,
+          2.716,
+          2.264,
+          3.719
+        ]
+      },
+      "mean_raw_sharpe": 3.0875,
+      "sec": 0.8
+    },
+    {
+      "trial": 26,
+      "cat": {
+        "depth": 4,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 1.0,
+        "iterations": 600
+      },
+      "post": {
+        "kind": "inv_vol",
+        "threshold_q": 0.25,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.911,
+          1.742,
+          2.76,
+          2.201,
+          3.743
+        ]
+      },
+      "mean_raw_sharpe": 3.0716,
+      "sec": 1.6
+    },
+    {
+      "trial": 27,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 10.0,
+        "iterations": 300
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.972,
+          1.759,
+          2.773,
+          2.182,
+          3.771
+        ]
+      },
+      "mean_raw_sharpe": 3.0911,
+      "sec": 1.7
+    },
+    {
+      "trial": 28,
+      "cat": {
+        "depth": 6,
+        "learning_rate": 0.02,
+        "l2_leaf_reg": 1.0,
+        "iterations": 1200
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.1,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.88,
+          1.762,
+          2.825,
+          2.178,
+          3.774
+        ]
+      },
+      "mean_raw_sharpe": 3.0838,
+      "sec": 6.7
+    },
+    {
+      "trial": 29,
+      "cat": {
+        "depth": 5,
+        "learning_rate": 0.03,
+        "l2_leaf_reg": 10.0,
+        "iterations": 900
+      },
+      "post": {
+        "kind": "thresholded_inv_vol",
+        "threshold_q": 0.4,
+        "shrink_alpha": 0.05,
+        "short_floor": 0.0,
+        "split_sharpes": [
+          4.892,
+          1.739,
+          2.79,
+          2.216,
+          3.75
+        ]
+      },
+      "mean_raw_sharpe": 3.0773,
+      "sec": 3.3
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+use this for research: https://github.com/karpathy/autoresearch
+
+use claude code API billing
+
+use this to submit to kaggle via API: kaggle competitions submit -c hrt-eth-zurich-datathon-2026 -f submission.csv  -m "Message"
+
+run on student cluster
+
+some extension from philip to keep going
