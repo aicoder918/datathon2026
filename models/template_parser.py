@@ -27,8 +27,6 @@ SECTOR_PHRASES = [
     "data analytics", "advanced manufacturing", "consumer electronics",
     "biotechnology", "fintech", "robotics", "autonomous vehicles",
     "precision manufacturing", "process automation", "digital payments",
-    "precision manufacturing systems", "process automation systems",
-    "digital payments systems",
 ]
 REGIONS = [
     "Southeast Asia", "Asia Pacific", "Latin America", "Central Europe",
@@ -53,6 +51,16 @@ def _normalize(text: str) -> str:
     t = re.sub(r"\d+(?:\.\d+)?\s?%", "N%", t)
     t = re.sub(r"\b\d+(?:\.\d+)?\b", "N", t)
     t = re.sub(r"^(?:[A-Z][A-Za-z]+\s){1,3}", "<COMPANY> ", t)
+    t = re.sub(r"^(<COMPANY>\s+).+?\s+steps down unexpectedly citing\s+.+$",
+               r"\1<ROLE> steps down unexpectedly citing <REASON>", t, flags=re.IGNORECASE)
+    t = re.sub(r"^(<COMPANY>\s+)steps down unexpectedly citing\s+.+$",
+               r"\1<ROLE> steps down unexpectedly citing <REASON>", t, flags=re.IGNORECASE)
+    t = re.sub(r"^(<COMPANY>\s+)(?:.+?\s+)?addresses investor concerns in open letter$",
+               r"\1<ROLE> addresses investor concerns in open letter", t, flags=re.IGNORECASE)
+    t = re.sub(r"^(<COMPANY>\s+)to present at\s+.+$",
+               r"\1to present at <EVENT>", t, flags=re.IGNORECASE)
+    t = re.sub(r"^(<COMPANY>\s+)confirms participation in\s+.+$",
+               r"\1confirms participation in <EVENT>", t, flags=re.IGNORECASE)
     for p in _PARTNER_SORTED:
         t = re.sub(re.escape(p), "<PARTNER>", t, flags=re.IGNORECASE)
     for s in _SECTOR_SORTED:
@@ -64,7 +72,7 @@ def _normalize(text: str) -> str:
 
 
 # Build template_text -> template_index from the canonical CSV.
-_hf = pd.read_csv(MODELS_DIR / "headline_features.csv",
+_hf = pd.read_csv(MODELS_DIR / "headline_features_train.csv",
                   usecols=["template_index", "template_text"]).drop_duplicates()
 _hf = _hf[_hf["template_index"] >= 0]
 TEMPLATE_TO_INDEX: dict[str, int] = dict(

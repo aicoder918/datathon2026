@@ -23,18 +23,18 @@ SENT_MAP = _finbert.set_index("headline")[["label", "signed"]]
 
 
 # ---------- template / sector / region extractors (derived from headline_features.csv) ----------
-_hf = pd.read_csv(MODELS_DIR / "headline_features.csv", usecols=["template_index", "template_text"])
+_hf = pd.read_csv(MODELS_DIR / "headline_features_train.csv", usecols=["template_index", "template_text"])
 _tpl_pairs = [(int(i), t) for i, t in _hf.drop_duplicates().sort_values("template_index").values.tolist()
               if int(i) >= 0]
-SECTORS = sorted(c[len("sector_"):] for c in pd.read_csv(MODELS_DIR / "headline_features.csv", nrows=0).columns
+SECTORS = sorted(c[len("sector_"):] for c in pd.read_csv(MODELS_DIR / "headline_features_train.csv", nrows=0).columns
                  if c.startswith("sector_") and c != "sector_<NONE>")
-REGIONS = sorted(c[len("region_"):] for c in pd.read_csv(MODELS_DIR / "headline_features.csv", nrows=0).columns
+REGIONS = sorted(c[len("region_"):] for c in pd.read_csv(MODELS_DIR / "headline_features_train.csv", nrows=0).columns
                  if c.startswith("region_") and c != "region_<NONE>")
 N_TEMPLATES = max(i for i, _ in _tpl_pairs) + 1
 
 # Authoritative (headline -> template_index) lookup from train + public CSVs.
 # Covers all train headlines + all public-test headlines; private-test falls back to regex.
-_lookup_dfs = [pd.read_csv(MODELS_DIR / "headline_features.csv", usecols=["title", "template_index"])]
+_lookup_dfs = [pd.read_csv(MODELS_DIR / "headline_features_train.csv", usecols=["title", "template_index"])]
 _pub_path = MODELS_DIR / "headline_features_public.csv"
 if _pub_path.exists():
     _lookup_dfs.append(pd.read_csv(_pub_path, usecols=["title", "template_index"]))
@@ -110,6 +110,15 @@ def _attach_tid(hdf: pd.DataFrame) -> pd.DataFrame:
     return hdf
 
 
+def _attach_tid_sec(hdf: pd.DataFrame) -> pd.DataFrame:
+    """Attach both template_id and sector columns."""
+    hdf = hdf.copy()
+    triples = [extract_event(h) for h in hdf["headline"]]
+    hdf["_tid"] = [t[0] for t in triples]
+    hdf["_sec"] = [t[1] for t in triples]
+    return hdf
+
+
 def fit_template_impacts(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
                          K: int = 5, prior_n: float = 30.0) -> np.ndarray:
     """Per-template impact = shrunk mean of the forward K-bar return of headlines
@@ -139,6 +148,135 @@ def fit_template_impacts(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
     return impacts
 
 
+CONF_K = 10.0  # prior strength for confidence discount; larger = more skeptical
+
+
+def fit_template_impacts_confidence(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
+                                    K: int = 5, conf_k: float = CONF_K,
+                                    ) -> tuple[dict[int, tuple[float, float]],
+                                               dict[tuple[int, str], tuple[float, float]]]:
+    """Returns (tid_stats, pair_stats) where each maps to (influence, confidence).
+    - influence = raw group sample mean of forward K-bar return
+    - confidence = n / (n + conf_k * var / global_var), in [0, 1)
+        * few datapoints → small; high variance → small
+    """
+    bars = bars_df[["session", "bar_ix", "close"]].set_index(["session", "bar_ix"])["close"]
+    max_bar = bars_df.groupby("session")["bar_ix"].max()
+    h = _attach_tid_sec(headlines_df)
+    h = h[h["_tid"] >= 0].copy()
+    h["c0"] = bars.reindex(list(zip(h["session"], h["bar_ix"]))).values
+    end = np.minimum(h["bar_ix"].to_numpy() + K,
+                     h["session"].map(max_bar).to_numpy())
+    h["c1"] = bars.reindex(list(zip(h["session"], end))).values
+    h["fwd_ret"] = h["c1"] / h["c0"] - 1
+    h = h.dropna(subset=["fwd_ret"])
+
+    global_var = float(h["fwd_ret"].var())
+
+    def stats(group_df):
+        n = float(len(group_df))
+        m = float(group_df.mean()) if n > 0 else 0.0
+        v = float(group_df.var()) if n > 1 and np.isfinite(group_df.var()) else global_var
+        conf = n / (n + conf_k * v / global_var) if global_var > 0 else 0.0
+        return m, conf
+
+    per_tid = h.groupby("_tid")["fwd_ret"]
+    tid_stats: dict[int, tuple[float, float]] = {int(t): stats(g) for t, g in per_tid}
+
+    per_pair = h.groupby(["_tid", "_sec"])["fwd_ret"]
+    pair_stats: dict[tuple[int, str], tuple[float, float]] = {
+        (int(t), str(s)): stats(g) for (t, s), g in per_pair
+    }
+    return tid_stats, pair_stats
+
+
+def build_event_features_confidence(hdf: pd.DataFrame, all_sessions: np.ndarray,
+                                    tid_stats: dict[int, tuple[float, float]],
+                                    pair_stats: dict[tuple[int, str], tuple[float, float]],
+                                    bar_start: int = 40,
+                                    recency_power: float = 1.0,
+                                    max_bar: int = 50,
+                                    ) -> pd.DataFrame:
+    """Per-session sum of influence(tid,sec) × confidence × recency^p over
+    headlines with bar_ix ∈ [bar_start, max_bar). recency = (b - (bar_start-1))
+    / (max_bar - bar_start) clipped to [0, 1]."""
+    span = float(max_bar - bar_start)
+    h = _attach_tid_sec(hdf)
+    h = h[(h["_tid"] >= 0) & (h["bar_ix"] >= bar_start) & (h["bar_ix"] < max_bar)].copy()
+    tids = h["_tid"].to_numpy(int)
+    secs = h["_sec"].to_numpy()
+    bars = h["bar_ix"].to_numpy(float)
+    contribs = np.zeros(len(h), dtype=float)
+    for i, (t, s, b) in enumerate(zip(tids, secs, bars)):
+        stat = pair_stats.get((int(t), str(s))) or tid_stats.get(int(t))
+        if stat is None:
+            continue
+        infl, conf = stat
+        r = max(0.0, min(1.0, (b - (bar_start - 1)) / span))
+        contribs[i] = infl * conf * (r ** recency_power)
+    h["impact"] = contribs
+    agg = h.groupby("session")["impact"].sum()
+    out = pd.DataFrame(index=all_sessions, columns=["event_impact_conf"], dtype=float).fillna(0.0)
+    out.index.name = "session"
+    out.loc[agg.index, "event_impact_conf"] = agg.values
+    return out.sort_index()
+
+
+def build_event_features_confidence_oof(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
+                                        sessions: np.ndarray,
+                                        n_splits: int = 5, seed: int = SEED,
+                                        K: int = 5, conf_k: float = CONF_K,
+                                        bar_start: int = 40,
+                                        recency_power: float = 1.0) -> pd.DataFrame:
+    from sklearn.model_selection import KFold
+    out = pd.DataFrame(0.0, index=sessions, columns=["event_impact_conf"])
+    out.index.name = "session"
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    for tr_idx, va_idx in kf.split(sessions):
+        tr_s, va_s = sessions[tr_idx], sessions[va_idx]
+        h_tr = headlines_df[headlines_df["session"].isin(tr_s)]
+        b_tr = bars_df[bars_df["session"].isin(tr_s)]
+        tid_stats, pair_stats = fit_template_impacts_confidence(h_tr, b_tr, K=K, conf_k=conf_k)
+        h_va = headlines_df[headlines_df["session"].isin(va_s)]
+        va_feat = build_event_features_confidence(h_va, va_s, tid_stats, pair_stats,
+                                                  bar_start=bar_start, recency_power=recency_power)
+        out.loc[va_s, ["event_impact_conf"]] = va_feat[["event_impact_conf"]].values
+    return out.sort_index()
+
+
+def fit_template_impacts_sector(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
+                                K: int = 5, prior_n: float = 30.0,
+                                ) -> tuple[np.ndarray, dict[tuple[int, str], float]]:
+    """Hierarchical shrinkage: (tid, sector) mean shrunk toward tid mean, which
+    is itself shrunk toward the global mean. Returns (tid_impact, pair_impact).
+    """
+    bars = bars_df[["session", "bar_ix", "close"]].set_index(["session", "bar_ix"])["close"]
+    max_bar = bars_df.groupby("session")["bar_ix"].max()
+    h = _attach_tid_sec(headlines_df)
+    h = h[h["_tid"] >= 0].copy()
+    h["c0"] = bars.reindex(list(zip(h["session"], h["bar_ix"]))).values
+    end = np.minimum(h["bar_ix"].to_numpy() + K,
+                     h["session"].map(max_bar).to_numpy())
+    h["c1"] = bars.reindex(list(zip(h["session"], end))).values
+    h["fwd_ret"] = h["c1"] / h["c0"] - 1
+    h = h.dropna(subset=["fwd_ret"])
+
+    global_mean = float(h["fwd_ret"].mean())
+    per_tid = h.groupby("_tid")["fwd_ret"].agg(["mean", "count"])
+    tid_impact = np.full(N_TEMPLATES, global_mean, dtype=float)
+    tids = np.asarray(per_tid.index.to_numpy(), dtype=int)
+    tid_impact[tids] = (per_tid["count"].to_numpy(float) * per_tid["mean"].to_numpy(float)
+                        + prior_n * global_mean) / (per_tid["count"].to_numpy(float) + prior_n)
+
+    per_pair = h.groupby(["_tid", "_sec"])["fwd_ret"].agg(["mean", "count"])
+    pair_impact: dict[tuple[int, str], float] = {}
+    for (tid, sec), row in per_pair.iterrows():
+        parent = float(tid_impact[int(tid)])
+        n, m = float(row["count"]), float(row["mean"])
+        pair_impact[(int(tid), str(sec))] = (n * m + prior_n * parent) / (n + prior_n)
+    return tid_impact, pair_impact
+
+
 HORIZONS = (3, 5, 10)  # forward-bar windows to estimate template impact at
 
 
@@ -153,6 +291,68 @@ def fit_template_impacts_multi(headlines_df: pd.DataFrame, bars_df: pd.DataFrame
                                horizons=HORIZONS) -> dict[int, np.ndarray]:
     """Per-horizon impact tables: {K: array[N_TEMPLATES]}."""
     return {K: fit_template_impacts(headlines_df, bars_df, K=K) for K in horizons}
+
+
+def fit_template_impacts_sector_multi(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
+                                      horizons=HORIZONS,
+                                      ) -> dict[int, tuple[np.ndarray, dict[tuple[int, str], float]]]:
+    return {K: fit_template_impacts_sector(headlines_df, bars_df, K=K) for K in horizons}
+
+
+def build_event_features_sector(hdf: pd.DataFrame, all_sessions: np.ndarray,
+                                tid_impact: np.ndarray,
+                                pair_impact: dict[tuple[int, str], float]) -> pd.DataFrame:
+    """Per-session sum of sector-resolved impacts. Falls back to tid-only impact
+    when the headline has no sector or the (tid, sector) pair wasn't seen in fit."""
+    h = _attach_tid_sec(hdf)
+    h = h[h["_tid"] >= 0].copy()
+    tids = h["_tid"].to_numpy(int)
+    secs = h["_sec"].to_numpy()
+    imp = np.array([pair_impact.get((int(t), str(s)), float(tid_impact[int(t)]))
+                    for t, s in zip(tids, secs)], dtype=float)
+    h["impact"] = imp
+    h["recency_w"] = np.exp(-(49.0 - h["bar_ix"].to_numpy()) / RECENCY_TAU)
+    h["impact_recent"] = h["impact"] * h["recency_w"]
+    agg = h.groupby("session")[["impact", "impact_recent"]].sum()
+    out = pd.DataFrame(index=all_sessions,
+                       columns=["event_impact_sec", "event_impact_sec_recent"],
+                       dtype=float).fillna(0.0)
+    out.index.name = "session"
+    out.loc[agg.index, "event_impact_sec"] = agg["impact"].values
+    out.loc[agg.index, "event_impact_sec_recent"] = agg["impact_recent"].values
+    return out.sort_index()
+
+
+def build_event_features_sector_multi(hdf: pd.DataFrame, all_sessions: np.ndarray,
+                                      impacts_by_k: dict[int, tuple]) -> pd.DataFrame:
+    dfs = []
+    for K, (tid_imp, pair_imp) in impacts_by_k.items():
+        d = build_event_features_sector(hdf, all_sessions, tid_imp, pair_imp)
+        d.columns = [f"event_impact_sec_k{K}", f"event_impact_sec_recent_k{K}"]
+        dfs.append(d)
+    return pd.concat(dfs, axis=1)
+
+
+def build_event_features_sector_oof(headlines_df: pd.DataFrame, bars_df: pd.DataFrame,
+                                    sessions: np.ndarray,
+                                    n_splits: int = 5, seed: int = SEED,
+                                    horizons=HORIZONS) -> pd.DataFrame:
+    from sklearn.model_selection import KFold
+    cols = []
+    for K in horizons:
+        cols += [f"event_impact_sec_k{K}", f"event_impact_sec_recent_k{K}"]
+    out = pd.DataFrame(0.0, index=sessions, columns=cols)
+    out.index.name = "session"
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    for tr_idx, va_idx in kf.split(sessions):
+        tr_s, va_s = sessions[tr_idx], sessions[va_idx]
+        h_tr = headlines_df[headlines_df["session"].isin(tr_s)]
+        b_tr = bars_df[bars_df["session"].isin(tr_s)]
+        impacts_k = fit_template_impacts_sector_multi(h_tr, b_tr, horizons=horizons)
+        h_va = headlines_df[headlines_df["session"].isin(va_s)]
+        va_feat = build_event_features_sector_multi(h_va, va_s, impacts_k)
+        out.loc[va_s, cols] = va_feat[cols].values
+    return out.sort_index()
 
 
 def build_event_features_multi(hdf: pd.DataFrame, all_sessions: np.ndarray,
@@ -273,6 +473,23 @@ def build_headline_features(hdf: pd.DataFrame, all_sessions: np.ndarray) -> pd.D
     return out.sort_index()
 
 
+def build_decay_sent_features(hdf: pd.DataFrame, all_sessions: np.ndarray) -> pd.DataFrame:
+    """Time-decayed FinBERT sentiment: exponential-weighted sums at τ=5/10/20
+    plus hard-window mean over bars 40–49. Paired-diff Δ=+0.103 (t=+2.02),
+    both halves positive."""
+    h = hdf.merge(SENT_MAP, left_on="headline", right_index=True, how="left")
+    h["signed"] = h["signed"].fillna(0.0)
+    out = pd.DataFrame(index=all_sessions)
+    out.index.name = "session"
+    for tau in (5, 10, 20):
+        w = np.exp(-(49 - h["bar_ix"].to_numpy()) / tau)
+        tmp = h.assign(wsig=w * h["signed"].to_numpy())
+        out[f"hl_decay_sent_t{tau}"] = tmp.groupby("session")["wsig"].sum()
+    recent = h[h["bar_ix"] >= 40]
+    out["hl_mean_sent_recent10"] = recent.groupby("session")["signed"].mean()
+    return out.fillna(0.0).sort_index()
+
+
 # ---------- data loading wrappers ----------
 def load_train_base() -> tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.DataFrame]:
     """X with bars+sentiment (no event-impact cols), y, raw headlines df, and
@@ -297,6 +514,7 @@ def load_train() -> tuple[pd.DataFrame, pd.Series]:
     """X with bars + sentiment + OOF event-impact cols (no target leakage)."""
     X, y, headlines, bars_full = load_train_base()
     X = X.join(build_event_features_oof(headlines, bars_full, X.index.to_numpy()))
+    X = X.join(build_event_features_sector_oof(headlines, bars_full, X.index.to_numpy()))
     return X, y
 
 
@@ -310,12 +528,14 @@ def load_test(impacts: dict[int, np.ndarray] | None = None) -> pd.DataFrame:
         pd.read_parquet(DATA_DIR / "headlines_seen_public_test.parquet"),
         pd.read_parquet(DATA_DIR / "headlines_seen_private_test.parquet"),
     ], ignore_index=True)
+    _, _, train_headlines, train_bars = load_train_base()
     if impacts is None:
-        _, _, train_headlines, train_bars = load_train_base()
         impacts = fit_template_impacts_multi(train_headlines, train_bars)
+    sec_impacts = fit_template_impacts_sector_multi(train_headlines, train_bars)
     X = build_bar_features(test_seen)
     X = X.join(build_headline_features(test_headlines, X.index.to_numpy()))
     X = X.join(build_event_features_multi(test_headlines, X.index.to_numpy(), impacts))
+    X = X.join(build_event_features_sector_multi(test_headlines, X.index.to_numpy(), sec_impacts))
     return X
 
 
@@ -365,8 +585,8 @@ def shape_positions(pred: np.ndarray, vol: np.ndarray, kind: str,
 # Shrink toward constant-long and floor shorts at 0. The drift is the bulk of the
 # score; the model tilt is small and noisy, so we lean on the guaranteed-good
 # long bet and use the model only to modulate size.
-SHRINK_ALPHA = 0.7
-SHORT_FLOOR = 0.0
+SHRINK_ALPHA = 0.5
+SHORT_FLOOR = 0.3
 
 
 def finalize(pos: np.ndarray,

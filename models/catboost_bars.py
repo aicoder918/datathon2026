@@ -1,7 +1,10 @@
 """Train the CatBoost bars+headlines model on all training data and write the
 submission. Uses a thorough repeated K-fold CV pass to pick the right number
 of boosting iterations before the final fit. Holdout/Sharpe diagnostics live
-in `evaluate.py`."""
+in `evaluate.py`.
+
+(Optuna-tuned variant tried 2026-04-18 scored 2.51-2.55 on LB vs 2.57 baseline —
+confirmed overfit to train-session distribution; reverted.)"""
 from __future__ import annotations
 import numpy as np
 import pandas as pd
@@ -33,7 +36,7 @@ for repeat in range(N_CV_REPEATS):
     for fold, (tr_idx, va_idx) in enumerate(kf.split(X_full)):
         m = CatBoostRegressor(
             iterations=1500, learning_rate=0.03, depth=5,
-            loss_function="RMSE", eval_metric="RMSE",
+            loss_function="MAE", eval_metric="MAE",
             random_seed=SEED + repeat * 97 + fold,
             early_stopping_rounds=100, verbose=False,
         )
@@ -52,14 +55,14 @@ print(f"FINAL_ITERS (median * 5/4) = {final_iters}")
 print("\nTraining final submission model on ALL training data ...")
 model = CatBoostRegressor(
     iterations=final_iters, learning_rate=0.03, depth=5,
-    loss_function="RMSE", random_seed=SEED, verbose=False,
+    loss_function="MAE", random_seed=SEED, verbose=False,
 )
 model.fit(X_full, y_full)
 
 # ---------- predict + shape positions ----------
 pred = np.asarray(model.predict(X_test), dtype=float)
 test_vol = np.asarray(X_test["vol"].values, dtype=float)
-positions = shape_positions(pred, test_vol, BEST_KIND)
+positions = shape_positions(pred, test_vol, BEST_KIND, threshold_q=0.35)
 positions = finalize(positions)
 print(f"Applied {BEST_KIND!r} + finalize(shrink α={SHRINK_ALPHA}, floor={SHORT_FLOOR})")
 

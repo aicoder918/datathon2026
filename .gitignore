@@ -4,3 +4,11 @@ __pycache__/
 catboost_info/
 models/oof/
 .DS_Store
+
+# Large CSVs (exceed GitHub 100MB limit / bulky intermediates)
+models/headline_features_public.csv
+models/headline_features_train.csv
+models/old_headline_features/
+
+# Ad-hoc ChatGPT experiment workspace
+submissions/chatgpt/
