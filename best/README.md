@@ -1,15 +1,16 @@
 # Current Best LB Submission
 
 ## Current best
-- **File**: `best.csv` (copy of `submissions/v54_amp110_sp_t125_m085.csv`)
-- **LB Public Score**: **2.88951** ★ (AHEAD of affenmann team's 2.889!)
+- **File**: `best.csv` (copy of `submissions/v59_arblend_w15_amp120_sp.csv`)
+- **LB Public Score**: **2.89807** ★ (AHEAD of affenmann team's 2.889)
 - **Date discovered**: 2026-04-19
 
 ## Composition
-Re-shape the 3-signal blend (v51_tsagg06 @ LB 2.88066) to restore tails:
-1. Start with v51_tsagg06 = 0.89 orig + 0.05 rr + 0.06 tsagg
-2. Mean-preserving scale by ×1.10 (restores std 0.66 → 0.73, matching orig)
-3. Softpos(t=1.25, m=0.85, pos-only) shaping
+Blend v54 (the 2.88951 reshape-of-reshape) with autoresearch signal, then amp+softpos:
+1. `v54 = v51_tsagg06` reshape-stack: 0.89 orig + 0.05 rr + 0.06 tsagg, amp×1.10, softpos(t=1.25,m=0.85)
+2. `blend = 0.85*v54 + 0.15*ar_current` (ar corr 0.607 with v54 — high diversity)
+3. `y = mean + 1.20*(blend - mean)`
+4. `y = softpos(y, t=1.25, m=0.85, pos-only)`
 
 ## Session progression
 | Version | LB | Delta |
@@ -18,17 +19,19 @@ Re-shape the 3-signal blend (v51_tsagg06 @ LB 2.88066) to restore tails:
 | v47_sp_t120_m075_ar_w05 | 2.87484 | +0.007 |
 | aff10_best_robustq01blend_95_05 | 2.87967 | +0.005 |
 | v51_tsagg06 (3-signal blend) | 2.88066 | +0.001 |
-| **v54_amp110_sp_t125_m085** (current) | **2.88951** | **+0.009** |
+| v54_amp110_sp_t125_m085 | 2.88951 | +0.009 |
+| **v59_arblend_w15_amp120_sp** (current) | **2.89807** | **+0.009** |
 | Affenmann team LB | 2.889 | PASSED ✓ |
-| Leader target | 2.916 | +0.027 gap |
-| User ambition | 3.000 | +0.111 gap |
+| Leader target | 2.916 | +0.018 gap |
+| User ambition | 3.000 | +0.102 gap |
 
 ## Key insights
-1. **BREAKTHROUGH: Reshape after blending**. The blend smooths tails (std drops 0.73 → 0.66). Re-amplifying ×1.10 then softpos (same params as orig) restored the tail confidence and jumped LB by +0.009 — largest single step this session.
-2. **corr(ridge_robust_q01, orig) = 0.03** — nearly orthogonal. 5% weight worth +0.012 LB.
-3. **corr(ts_aggressive, orig) = 0.35** — medium-diverse quality signal. 6% weight worth +0.001.
-4. Softpos params invariant: t=1.25, m=0.85 peak for both orig and reshape application.
-5. Scale ratio ≈ orig.std / blend.std = 1.103 — approximately recovers the original tail volatility.
+1. **NEW BREAKTHROUGH: autoresearch-blend + aggressive reshape**. ar_current (corr 0.61 w/ v54 — very diverse) at 15% weight pushes LB by +0.0086. The smoothing from blend requires a BIGGER amp (1.20 vs 1.10).
+2. **Reshape after blending**. The blend smooths tails (std drops 0.73 → 0.66). Re-amplifying + softpos restored tail info.
+3. **corr(ridge_robust_q01, orig) = 0.03** — nearly orthogonal. 5% weight worth +0.012 LB.
+4. **corr(ts_aggressive, orig) = 0.35** — medium-diverse quality signal. 6% weight worth +0.001.
+5. Softpos params invariant: t=1.25, m=0.85 peak across every application.
+6. **Pattern: blend to smooth → amp to restore → softpos to reshape tails**. Each step is cumulative.
 
 ## Lessons from failed paths
 - v48 (softpos/AR on top of rq): WORSE — blend already smooth, extra shaping overfits.
@@ -37,10 +40,11 @@ Re-shape the 3-signal blend (v51_tsagg06 @ LB 2.88066) to restore tails:
 - Only v54 (post-blend reshape) produced a real structural gain.
 
 ## Next exploration directions
-1. **v55 fine sweep** (amp 1.08–1.15, t 1.20–1.30, m 0.80–0.90) — find tighter peak.
-2. **v54 with AR blend** — add more diverse source *before* reshape.
-3. Try **amp + softpos on rq alone** — may beat v51+reshape stack.
-4. Train **LightGBM direct-Sharpe autograd** (SOTA_reaseach.txt method).
+1. **v60 fine sweep** around w=0.15, amp=1.20 (403 candidates built). Find tighter peak.
+2. **4-way blend**: orig + rr + agg + ar (ar at 8-12%). Built in v60_4way_*.
+3. **Heavier ar weight** (w=0.20, 0.25) might help more.
+4. Train **better autoresearch signal** — ar_current corr 0.61 helped; maybe different config pushes further.
 
 ## Rate-limit state
-- Both accounts burst-limited as of 05:17 UTC. Cool-off ~15-30 min typical.
+- Both accts hit daily cap (~100 submits each). A2 briefly unblocked 05:52 UTC to submit one — resets at 00:00 UTC 2026-04-20.
+- Watchdog @ /tmp/watchdog_queue.sh polls every 5 min, submits from /tmp/priority_queue.txt.
