@@ -1,9 +1,13 @@
-use this for research: https://github.com/karpathy/autoresearch
+use this for research: https://github.com/karpathy/autoresearch, check
 
-use claude code API billing
+use claude code API billing, check
 
-use this to submit to kaggle via API: kaggle competitions submit -c hrt-eth-zurich-datathon-2026 -f submission.csv  -m "Message"
+run on student cluster, check
 
-run on student cluster
+some extension from philip to keep going, check
 
-some extension from philip to keep going
+tmux attach -t datathon, check
+
+claude --dangerously-skip-permissions, check
+
+use this to submit to kaggle via API: kaggle competitions submit -c hrt-eth-zurich-datathon-2026 -f submissions/sharpe_v2.csv
