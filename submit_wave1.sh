@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -u
-unset KAGGLE_API_TOKEN
-export KAGGLE_USERNAME='ldldoodidodood'
-export KAGGLE_KEY='b4d2167892794aa0e9a1941504ffe65e'
+unset KAGGLE_API_TOKEN KAGGLE_USERNAME KAGGLE_KEY
+export KAGGLE_CONFIG_DIR="${KAGGLE_CONFIG_DIR:-/Users/mgershman/Desktop/datathon/.kaggle}"
 KAGGLE=/Users/mgershman/Desktop/datathon/.venv/bin/kaggle
 SUB=/Users/mgershman/Desktop/datathon/datathon2026/submissions
 COMP=hrt-eth-zurich-datathon-2026

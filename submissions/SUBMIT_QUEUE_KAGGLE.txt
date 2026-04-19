@@ -1,35 +1,21 @@
-# Paste into Kaggle web upload or run kaggle competitions submit when API 429 clears.
-# Competition: hrt-eth-zurich-datathon-2026
+# Evidence-first queue — refresh scores: `kaggle competitions submissions -c hrt-eth-zurich-datathon-2026`
 # Auth: export KAGGLE_CONFIG_DIR="/Users/mgershman/Desktop/datathon/.kaggle" && unset KAGGLE_API_TOKEN
 
-# 94% ridge937 + 3% tq37 + 3% domain_weighted (single three-way mix).
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_triple_ridge937_tq37_dw_940_030_030.csv
+# --- LB snapshot 2026-04-19 (public Sharpe) ---
+# Best cluster ~2.90306: avg4_winners_2p90306.csv; sub_base_rt10_ra50_935_055_010, _935_060_005,
+#   _930_060_010, _930_055_015 (3-branch: base + ridge_top10 + ridge_alpha_50000).
+# champ_plus_ridgea50k_995_005 ≈ 2.90305. 2-way ridge_top10 sweeps peak ~2.9030–2.90304.
+# WORSE — do not spend API quota re-uploading: octa 2.892, hexa 2.897, penta 2.899,
+#   quad090 2.901 (multi-auxiliary CatBoost dilution vs simple ridge blends).
+# Rule: submit new CSVs only when they extend a *winning geometry* or a new validated model file.
 
-# Threshold-only CatBoost variant (tq37 ~ lowest corr vs ridge937 among tq32–37) + 3% blend.
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_tq37_097_030.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_tq37_0985_015.csv
+# Next: wave-3 refinement (generate with `python datathon2026/run_wave3.py`; 74 meshes — do NOT bulk upload.)
+# Optional **at most ~5** vertex probes if you believe LB noise still hides a tenth of a milli-Sharpe:
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/sub_w3_rt10_ra50_938_052_010.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/sub_w3_rt10_ra50_931_062_007.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/sub_w3_rt10_ra50_935_057_008.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/sub_w3_rt10_ra50_936_058_006.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/sub_w3_champ_ra50_997_003.csv
 
-# CatBoost depth-6 + 3% on ridge937.
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_depth6_097_030.csv
-
-# Priority: orthogonal CatBoost (domain shift) on top of ridge937 — higher MAD vs pure ridge.
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_0985_015.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_097_030.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_095_050.csv
-
-# ridge_all (40 feat) vs ridge_top10 — measurably different geometry (see repo notes).
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_all_940_060.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_all_937_063.csv
-
-# Mean of three LB-tied ridge_top10 blends (935/938/940) — nearly identical to any single file.
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_ensemble_ridge_top10_tied3_mean.csv
-
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_935_065.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_936_064.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_937_063.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_938_062.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_939_061.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_940_060.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_enet_top10_937_063.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_top10_932_068.csv
-/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_top10_928_072.csv
+# Structural gains (same repo priority as HANDOFF): train a genuinely new orthogonal branch at low blend
+# weight vs base+ridge_top10, after screening test-row correlation vs anchors — not more 97/3 tweak spam.
