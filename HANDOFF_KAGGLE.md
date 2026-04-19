@@ -110,14 +110,35 @@ We submitted a large batch of pre-generated candidates, including:
   - `datathon2026/submissions/chatgpt/catboost_bars_bootstrap30_killshorts_blend.csv`
 - Blends vs the current best were tested; tiny mixes sometimes nudge, but the dominant structure remains the **seed20 + shaping** family.
 
-## Current best (public leaderboard, as of last poll in-session)
+## Current best (public leaderboard)
 
-**Best observed public score**: **2.90193**
+**Best observed public score**: **2.91264** (rank 5 of LB)
+
+- **File**: `datathon2026/submissions/champ_plus_ridgehl_a3k_870_130.csv`
+- **Kaggle description**: `headline 87/13 (peak zoom)`
+- **Composition**: `0.87 * champ + 0.13 * ridge_hl_a3000` where
+  - `champ = submission_best_plus_ridge_top10_935_065.csv` (was 2.90305)
+  - `ridge_hl_a3000 = submissions/ridge_hl_a3000.csv` — ridge over per-headline
+    features (template/sector/region one-hots + bar_ix + log$amt + pct + finbert
+    sentiment + session cum_ret + rolling vol) predicting forward-5-bar return,
+    aggregated per session via exp recency sum, shaped via thresholded_inv_vol.
+    Training script: `run_headline_model.py`.
+
+**Weight sweep evidence (robust, not an LB spike)**:
+- 98/2: 2.90568 · 95/5: 2.90890 · 90/10: 2.91213 · 87/13: **2.91264** · 85/15: 2.91233 · 80/20: 2.90907
+- 3-branch base + HL @87/13: 2.91239 (confirms cross-base robustness)
+
+## Historical runner-up (pre-headline-model plateau): **2.90306**
+
+- **File**: `datathon2026/submissions/sub_base_rt10_ra50_930_055_015.csv`
+- 3-branch: 0.930*base + 0.055*rt10 + 0.015*ra50
+
+## Previous handoff champion: **2.90193**
 
 - **File**: `datathon2026/submissions/submission_best_x103_plus_bootstrap30_killshorts_990_010.csv`
 - **Kaggle description**: `best_x103_plus_bootstrap30_killshorts_990_010`
 
-**Close runner-up**: **2.90190**
+**Close runner-up (original)**: **2.90190**
 
 - **File**: `datathon2026/submissions/submission_best_plus_seed20_900_100_amp105_seed5decay_0910_0090_amp105_x103.csv`
 - **Kaggle description**: `seed20_900100_amp105_seed5_91090_amp105_x103`
