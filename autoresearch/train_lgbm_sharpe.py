@@ -84,7 +84,7 @@ def main():
     Xarr = X_tr[ALL_FEATURES].to_numpy()
     dtrain = lgb.Dataset(Xarr, label=r.astype(np.float32))
     params = {
-        "objective": "regression",
+        "objective": make_sharpe_obj(args.out_scale),
         "learning_rate": args.lr,
         "num_leaves": args.leaves,
         "max_depth": 5,
@@ -100,7 +100,6 @@ def main():
         params,
         dtrain,
         num_boost_round=args.rounds,
-        fobj=make_sharpe_obj(args.out_scale),
         feval=make_sharpe_eval(args.out_scale),
         valid_sets=[dtrain],
         valid_names=["train"],
