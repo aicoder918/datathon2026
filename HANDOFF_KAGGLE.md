@@ -39,6 +39,30 @@ env \
     -m "short human-readable note"
 ```
 
+### Alternative: classic `username` + `key` (`kaggle.json`)
+
+A copy of your `Downloads/kaggle (3).json` is installed as:
+
+- **`/Users/mgershman/Desktop/datathon/.kaggle/kaggle.json`** (mode `600`)
+
+Use it by **unset**ting the API token and pointing `KAGGLE_CONFIG_DIR` at that folder:
+
+```bash
+unset KAGGLE_API_TOKEN KAGGLE_USERNAME KAGGLE_KEY
+
+export KAGGLE_CONFIG_DIR="/Users/mgershman/Desktop/datathon/.kaggle"
+
+env \
+  -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY \
+  -u http_proxy -u https_proxy -u all_proxy \
+  -u GIT_HTTP_PROXY -u GIT_HTTPS_PROXY \
+  -u SOCKS_PROXY -u SOCKS5_PROXY -u socks_proxy -u socks5_proxy \
+  /Users/mgershman/Desktop/datathon/.venv/bin/kaggle competitions submit \
+    -c hrt-eth-zurich-datathon-2026 \
+    -f "/ABS/PATH/TO/submission.csv" \
+    -m "short human-readable note"
+```
+
 ### Useful companion commands
 
 List recent submissions + scores:

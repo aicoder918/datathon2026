@@ -1,0 +1,35 @@
+# Paste into Kaggle web upload or run kaggle competitions submit when API 429 clears.
+# Competition: hrt-eth-zurich-datathon-2026
+# Auth: export KAGGLE_CONFIG_DIR="/Users/mgershman/Desktop/datathon/.kaggle" && unset KAGGLE_API_TOKEN
+
+# 94% ridge937 + 3% tq37 + 3% domain_weighted (single three-way mix).
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_triple_ridge937_tq37_dw_940_030_030.csv
+
+# Threshold-only CatBoost variant (tq37 ~ lowest corr vs ridge937 among tq32–37) + 3% blend.
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_tq37_097_030.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_tq37_0985_015.csv
+
+# CatBoost depth-6 + 3% on ridge937.
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_depth6_097_030.csv
+
+# Priority: orthogonal CatBoost (domain shift) on top of ridge937 — higher MAD vs pure ridge.
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_0985_015.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_097_030.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_push_ridge937_dw_095_050.csv
+
+# ridge_all (40 feat) vs ridge_top10 — measurably different geometry (see repo notes).
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_all_940_060.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_all_937_063.csv
+
+# Mean of three LB-tied ridge_top10 blends (935/938/940) — nearly identical to any single file.
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_ensemble_ridge_top10_tied3_mean.csv
+
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_935_065.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_936_064.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_937_063.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_938_062.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_939_061.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_enet_hybrid_940_060.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_enet_top10_937_063.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_top10_932_068.csv
+/Users/mgershman/Desktop/datathon/datathon2026/submissions/submission_best_plus_ridge_top10_928_072.csv
