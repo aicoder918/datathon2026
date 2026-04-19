@@ -1,0 +1,53 @@
+Feature Drift Interpretation (train vs public/private)
+
+Overall summary:
+- train_vs_public: features=262, flagged=0 (0.0%), median_similarity=0.9498, median_psi=0.0040, median_ks=0.0176, median_|mean_shift_sigma|=0.0233
+- train_vs_private: features=262, flagged=0 (0.0%), median_similarity=0.9484, median_psi=0.0041, median_ks=0.0186, median_|mean_shift_sigma|=0.0250
+
+Top 10 MOST SIMILAR features (train vs public):
+- history_length: similarity=1.0000, drift_score=0.0000, psi=0.0000, ks=0.0000, |mean_shift|=0.0000
+- t12_count_total: similarity=0.9954, drift_score=0.0046, psi=0.0001, ks=0.0040, |mean_shift|=0.0004
+- t36_count_total: similarity=0.9943, drift_score=0.0057, psi=0.0000, ks=0.0010, |mean_shift|=0.0047
+- t27_count_total: similarity=0.9940, drift_score=0.0061, psi=0.0001, ks=0.0028, |mean_shift|=0.0032
+- t40_count_total: similarity=0.9937, drift_score=0.0063, psi=0.0038, ks=0.0005, |mean_shift|=0.0020
+- t5_count_total: similarity=0.9933, drift_score=0.0067, psi=0.0000, ks=0.0032, |mean_shift|=0.0035
+- t14_count_total: similarity=0.9929, drift_score=0.0071, psi=0.0002, ks=0.0050, |mean_shift|=0.0019
+- t46_count_total: similarity=0.9911, drift_score=0.0090, psi=0.0016, ks=0.0017, |mean_shift|=0.0058
+- t40_recency: similarity=0.9910, drift_score=0.0091, psi=0.0054, ks=0.0034, |mean_shift|=0.0003
+- t27_recency: similarity=0.9905, drift_score=0.0096, psi=0.0000, ks=0.0057, |mean_shift|=0.0039
+
+Top 10 MOST SIMILAR features (train vs private):
+- history_length: similarity=1.0000, drift_score=0.0000, psi=0.0000, ks=0.0000, |mean_shift|=0.0000
+- t14_count_total: similarity=0.9959, drift_score=0.0041, psi=0.0000, ks=0.0026, |mean_shift|=0.0015
+- t48_amplitude_sum_weighted: similarity=0.9925, drift_score=0.0075, psi=0.0042, ks=0.0027, |mean_shift|=0.0007
+- t46_count_total: similarity=0.9924, drift_score=0.0077, psi=0.0011, ks=0.0015, |mean_shift|=0.0051
+- t48_count_total: similarity=0.9918, drift_score=0.0083, psi=0.0047, ks=0.0018, |mean_shift|=0.0018
+- t40_count_total: similarity=0.9916, drift_score=0.0085, psi=0.0001, ks=0.0011, |mean_shift|=0.0073
+- t5_count_total: similarity=0.9913, drift_score=0.0088, psi=0.0001, ks=0.0061, |mean_shift|=0.0027
+- t36_count_total: similarity=0.9906, drift_score=0.0095, psi=0.0000, ks=0.0026, |mean_shift|=0.0069
+- t40_recency: similarity=0.9905, drift_score=0.0096, psi=0.0047, ks=0.0035, |mean_shift|=0.0013
+- t18_count_total: similarity=0.9901, drift_score=0.0100, psi=0.0001, ks=0.0031, |mean_shift|=0.0068
+
+Top 10 LEAST SIMILAR features (highest drift) train vs public:
+- return_positive_ratio_w10: drift_score=0.4061, reasons=, psi=0.0092, ks=0.0232, p=7.05e-01, |mean_shift|=0.0404
+- return_positive_ratio_w20: drift_score=0.3859, reasons=, psi=0.0041, ks=0.0149, p=9.86e-01, |mean_shift|=0.0336
+- return_positive_ratio_w50: drift_score=0.2739, reasons=, psi=0.0116, ks=0.0235, p=6.90e-01, |mean_shift|=0.0388
+- slope_linreg_w20: drift_score=0.2323, reasons=, psi=0.0145, ks=0.0517, p=1.51e-02, |mean_shift|=0.0883
+- close_skew_w5: drift_score=0.2224, reasons=, psi=0.0210, ks=0.0537, p=1.02e-02, |mean_shift|=0.0618
+- t49_amplitude_sum_weighted: drift_score=0.2217, reasons=, psi=0.1059, ks=0.0102, p=1.00e+00, |mean_shift|=0.1056
+- rsi_14: drift_score=0.2014, reasons=, psi=0.0140, ks=0.0445, p=5.33e-02, |mean_shift|=0.0761
+- return_mean_w20: drift_score=0.1988, reasons=, psi=0.0125, ks=0.0461, p=4.09e-02, |mean_shift|=0.0781
+- return_cumulative_w20: drift_score=0.1977, reasons=, psi=0.0124, ks=0.0455, p=4.52e-02, |mean_shift|=0.0779
+- t49_recency: drift_score=0.1862, reasons=, psi=0.0823, ks=0.0102, p=1.00e+00, |mean_shift|=0.0937
+
+Top 10 LEAST SIMILAR features (highest drift) train vs private:
+- return_positive_ratio_w20: drift_score=0.3647, reasons=, psi=0.0040, ks=0.0130, p=9.98e-01, |mean_shift|=0.0143
+- t49_amplitude_sum_weighted: drift_score=0.3007, reasons=, psi=0.1430, ks=0.0128, p=9.98e-01, |mean_shift|=0.1449
+- return_positive_ratio_w50: drift_score=0.2677, reasons=, psi=0.0114, ks=0.0227, p=7.30e-01, |mean_shift|=0.0336
+- t49_recency: drift_score=0.2569, reasons=, psi=0.1155, ks=0.0128, p=9.98e-01, |mean_shift|=0.1286
+- close_skew_w5: drift_score=0.2293, reasons=, psi=0.0190, ks=0.0530, p=1.17e-02, |mean_shift|=0.0676
+- slope_linreg_w20: drift_score=0.2054, reasons=, psi=0.0174, ks=0.0520, p=1.42e-02, |mean_shift|=0.0722
+- macd_signal: drift_score=0.1881, reasons=, psi=0.0178, ks=0.0470, p=3.51e-02, |mean_shift|=0.0682
+- rsi_14: drift_score=0.1760, reasons=, psi=0.0148, ks=0.0401, p=1.05e-01, |mean_shift|=0.0644
+- return_mean_w20: drift_score=0.1753, reasons=, psi=0.0117, ks=0.0464, p=3.89e-02, |mean_shift|=0.0630
+- return_cumulative_w20: drift_score=0.1740, reasons=, psi=0.0118, ks=0.0464, p=3.89e-02, |mean_shift|=0.0628

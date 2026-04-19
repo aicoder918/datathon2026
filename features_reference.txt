@@ -1,0 +1,212 @@
+FEATURE REFERENCE — 266 features total
+=======================================
+
+Windows used throughout: w5, w10, w20, w50 (last N candles ending at the input boundary).
+This comparison setup always uses a full 50-candle input window (no history-length augmentation).
+
+Template IDs: t0–t49 correspond to the 50 headline templates in headline_templates.txt.
+
+
+================================================================================
+SECTION 1: CANDLE PRICE-LEVEL FEATURES (32)
+================================================================================
+8 features x 4 windows = 32
+
+close_mean_w{N}             Mean close price over the last N candles.
+close_std_w{N}              Std dev of close prices (measures price dispersion).
+close_min_w{N}              Lowest close in the window (support level proxy).
+close_max_w{N}              Highest close in the window (resistance level proxy).
+close_skew_w{N}             Skewness of close prices (positive = tail to the right).
+close_kurt_w{N}             Kurtosis of close prices (high = fat tails / outlier moves).
+high_low_range_mean_w{N}    Mean of (high - low) per candle (average intra-bar range).
+close_vs_open_w{N}          Mean of (close - open) / |open| (average bar direction as %).
+
+
+================================================================================
+SECTION 2: CANDLE RETURN FEATURES (20)
+================================================================================
+5 features x 4 windows = 20
+Returns = pct_change of close prices.
+
+return_mean_w{N}            Average return over the window (drift/momentum).
+return_std_w{N}             Std dev of returns (realized volatility proxy).
+return_skew_w{N}            Skewness of returns (negative = crashes more likely).
+return_positive_ratio_w{N}  Fraction of returns that are positive (win rate).
+return_cumulative_w{N}      Cumulative return over the window: prod(1+r) - 1.
+
+
+================================================================================
+SECTION 3: CANDLE TREND FEATURES (12)
+================================================================================
+3 features x 4 windows = 12
+
+slope_linreg_w{N}           Slope from linear regression of close vs time index.
+                            Positive = uptrend. Units: price change per candle.
+slope_pvalue_w{N}           P-value of the slope (low = statistically significant trend).
+trend_consistency_w{N}      Fraction of consecutive same-direction moves.
+                            High = smooth trend. Low = choppy/reversal-heavy.
+
+
+================================================================================
+SECTION 4: CANDLE VOLATILITY FEATURES (12)
+================================================================================
+3 features x 4 windows = 12
+
+atr_w{N}                    Average True Range. Mean of max(H-L, |H-Cprev|, |L-Cprev|).
+                            Measures typical bar-to-bar price movement including gaps.
+realized_vol_w{N}           std(returns) * sqrt(N). Annualized-style realized volatility.
+garman_klass_vol_w{N}       Garman-Klass volatility estimator using OHLC:
+                            0.5*log(H/L)^2 - (2*ln2-1)*log(C/O)^2, averaged.
+                            More efficient than close-to-close vol (uses full OHLC info).
+
+
+================================================================================
+SECTION 5: TECHNICAL INDICATORS (15)
+================================================================================
+Computed on the full input window, evaluated at the last candle.
+
+rsi_14                      Relative Strength Index (14-period). 0-100 scale.
+                            >70 = overbought, <30 = oversold.
+macd                        MACD line: EMA(12) - EMA(26). Positive = bullish momentum.
+macd_signal                 Signal line: 9-period EMA of the MACD line.
+macd_histogram              MACD - Signal. Positive = momentum accelerating upward.
+bollinger_upper_20          Upper Bollinger Band: SMA(20) + 2*std(20).
+bollinger_lower_20          Lower Bollinger Band: SMA(20) - 2*std(20).
+bollinger_width_20          Band width: upper - lower. Wide = high volatility regime.
+close_bollinger_pct_20      Where close sits within the bands: (close-lower)/(upper-lower).
+                            Near 1.0 = at upper band, near 0.0 = at lower band.
+ema_5                       5-period exponential moving average (fast signal).
+sma_5                       5-period simple moving average.
+ema_10                      10-period EMA.
+sma_10                      10-period SMA.
+ema_20                      20-period EMA (slow signal / mean-reversion anchor).
+sma_20                      20-period SMA.
+close_vs_ema20              (close - EMA20) / |EMA20|. Measures deviation from trend.
+                            Positive = above trend, negative = below.
+
+
+================================================================================
+SECTION 6: PER-TEMPLATE HEADLINE FEATURES (150)
+================================================================================
+3 features x 50 templates = 150
+
+t{ID}_count_total           How many times this template appeared in the session.
+                            0 if never seen.
+
+t{ID}_sentiment_mean        Mean template sentiment for this template in the session.
+                            Sentiment is the shrunk mean 5-bar forward return for
+                            the template (estimated from observed data).
+                            0 if template never appeared.
+
+t{ID}_recency               Candles since this template last appeared.
+                            0 = appeared on the last candle.
+                            N_CANDLES (50) = never appeared in the session.
+
+Template ID reference (from headline_templates.txt):
+  t0  = <COMPANY> secures $X contract with <PARTNER>
+  t1  = <COMPANY> begins scheduled maintenance of <SECTOR> systems
+  t2  = <COMPANY> explores strategic alternatives for <SECTOR> unit
+  t3  = <COMPANY> revises long-term strategy with focus on <SECTOR>
+  t4  = <COMPANY> misses quarterly revenue estimates by N%
+  t5  = <COMPANY> delays product launch in <SECTOR> segment
+  t6  = <COMPANY> announces $X share buyback program
+  t7  = <COMPANY> completes strategic acquisition to strengthen <SECTOR>
+  t8  = <COMPANY> files routine patent applications in <SECTOR>
+  t9  = <COMPANY> reports record quarterly revenue, up N% year-over-year
+  t10 = <COMPANY> launches next-generation <SECTOR> platform
+  t11 = <COMPANY> names new head of <SECTOR> division
+  t12 = <COMPANY> reports rising costs pressuring margins in <SECTOR>
+  t13 = <COMPANY> faces regulatory review of <SECTOR> practices
+  t14 = <COMPANY> reports N% decline in operating income
+  t15 = <COMPANY> sees N% drop in new customer orders this quarter
+  t16 = <COMPANY> files for regulatory approval of new <SECTOR> offering
+  t17 = <COMPANY> faces class action over <SECTOR> service disruption
+  t18 = <COMPANY> to host investor day focused on <SECTOR> strategy
+  t19 = <COMPANY> sees N% margin improvement in latest quarter
+  t20 = <COMPANY> announces breakthrough in <SECTOR>
+  t21 = <COMPANY> reports N% increase in customer acquisition
+  t22 = <COMPANY> wins industry award for excellence in <SECTOR>
+  t23 = <COMPANY> sees mixed results in <SECTOR> pilot program
+  t24 = <COMPANY> recalls products in <SECTOR> line due to quality concerns
+  t25 = <COMPANY> loses key contract in <REGION> to competitor
+  t26 = <COMPANY> warns of <SECTOR> disruptions affecting <REGION> operations
+  t27 = <COMPANY> expands operations into <REGION> markets
+  t28 = <COMPANY> withdraws from <REGION> market citing unfavorable conditions
+  t29 = <COMPANY> completes planned facility upgrade in <REGION>
+  t30 = <COMPANY> reports strong demand in <REGION>, raises outlook
+  t31 = <COMPANY> announces significant capital expenditure plan for <REGION>
+  t32 = <COMPANY> reports unexpected decline in <REGION> revenue
+  t33 = <COMPANY> opens new office in <REGION>
+  t34 = <COMPANY> signs multi-year partnership with <PARTNER>
+  t35 = <COMPANY> enters joint venture with <PARTNER>
+  t36 = <COMPANY> to present at <EVENT>
+  t37 = <COMPANY> confirms participation in <EVENT>
+  t38 = <COMPANY> <ROLE> addresses investor concerns in open letter
+  t39 = <COMPANY> <ROLE> steps down unexpectedly citing <REASON>
+  t40 = <COMPANY> lowers full-year guidance amid softening demand
+  t41 = <COMPANY> announces major organizational restructuring
+  t42 = <COMPANY> achieves key regulatory milestone ahead of schedule
+  t43 = <COMPANY> raises full-year guidance citing robust demand
+  t44 = <COMPANY> beats analyst expectations with strong earnings growth
+  t45 = <COMPANY> publishes annual sustainability report
+  t46 = <COMPANY> in talks for potential merger, details undisclosed
+  t47 = <COMPANY> schedules annual shareholder meeting for next month
+  t48 = <COMPANY> announces restructuring plan, cites challenging market conditions
+  t49 = <COMPANY> board meeting to discuss major strategic initiative
+
+
+================================================================================
+SECTION 7: GLOBAL HEADLINE FEATURES (15)
+================================================================================
+
+total_headlines             Total number of headlines in the session.
+total_headlines_last10      Headlines in the last 10 candles (recent news density).
+unique_templates_count      How many distinct template types appeared.
+unique_templates_last10     Distinct templates in the last 10 candles.
+mean_amplitude_all          Average amplitude across all headlines.
+max_amplitude_all           Max amplitude observed (strongest single signal).
+hl_net_sent                 Sum of headline sentiment values in the session.
+hl_net_sent_recent          Sum of headline sentiment values in last 10 candles.
+hl_mean_sent                Mean headline sentiment value in the session.
+hl_n_pos                    Number of headlines with positive sentiment.
+hl_n_neg                    Number of headlines with negative sentiment.
+headline_density_first_half Headlines in candles 0 to N/2-1.
+headline_density_second_half Headlines in candles N/2 to N-1.
+amplitude_trend             Slope of amplitude vs candle_idx (linregress).
+                            Positive = recent headlines have higher amplitude.
+candles_since_last_headline Candles since the most recent headline of any type.
+                            0 = headline on the last candle. N_CANDLES = no headlines.
+
+
+================================================================================
+SECTION 8: TEMPORAL INTERACTION FEATURES (10)
+================================================================================
+These connect the price stream to headline timing — "cause and effect" features.
+
+return_after_headline_mean  Average 1-candle return immediately following any headline.
+                            Positive = price tends to go up after news.
+return_after_headline_std   Std dev of post-headline returns (reaction consistency).
+return_before_headline_mean Average 1-candle return leading into a headline
+                            (baseline / pre-news drift).
+high_amplitude_return_mean  Average return after headlines with amplitude > 0.7
+                            (reaction to strong signals specifically).
+vol_during_headline_candles Std dev of returns on candles associated with headlines
+                            (how volatile are news candles?).
+vol_during_non_headline_candles Same, for candles with no headlines (background vol).
+headline_price_corr         Correlation between headline amplitude and candle return.
+                            Positive = higher amplitude headlines move price more.
+max_return_post_headline    Largest single return in the 3 candles after any headline.
+min_return_post_headline    Most negative return in the 3 candles after any headline.
+headline_cluster_count      Number of "bursts" (2+ headlines within 3 consecutive candles).
+                            Captures news clustering / event cascades.
+
+
+================================================================================
+COMPARISON RUN NOTES
+================================================================================
+
+- Training uses exactly one row per session:
+  input bars 0..49, target return close[99]/close[49]-1.
+- `history_length` is removed.
+- Dollar/percentage headline signal is removed for this run.
+  Headline amplitude is fixed to 1.0, so no contract-size/percentage scaling is used.

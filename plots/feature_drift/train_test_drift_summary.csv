@@ -1,0 +1,3 @@
+comparison,n_features,n_flagged,flagged_rate,median_similarity_score,median_psi,median_ks_stat,median_abs_mean_shift_sigma
+train_vs_public,262,0,0.0,0.9498382276384202,0.003968239118659903,0.01765,0.023278605896772914
+train_vs_private,262,0,0.0,0.9483856177529892,0.004137055396691011,0.01865,0.025040686598496086

@@ -1,0 +1,205 @@
+{
+  "summary": {
+    "n_features": 262,
+    "n_flagged": 0,
+    "flagged_rate": 0.0,
+    "n_psi_high": 0,
+    "n_ks_high": 0,
+    "n_mean_shift_high": 0,
+    "top_features_by_drift_score": [
+      {
+        "feature": "return_positive_ratio_w20",
+        "drift_score": 0.3646535502657882,
+        "psi": 0.004022178130424809,
+        "ks_stat": 0.013,
+        "ks_pvalue": 0.9975464936198969,
+        "abs_mean_shift_sigma": 0.014298038804141268,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "t49_amplitude_sum_weighted",
+        "drift_score": 0.3007194522383582,
+        "psi": 0.14304308390518058,
+        "ks_stat": 0.0128,
+        "ks_pvalue": 0.9980493809188692,
+        "abs_mean_shift_sigma": 0.14487636833317763,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_positive_ratio_w50",
+        "drift_score": 0.2677265154407053,
+        "psi": 0.011440256276780128,
+        "ks_stat": 0.0227,
+        "ks_pvalue": 0.7296903067826512,
+        "abs_mean_shift_sigma": 0.033586259165884806,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "t49_recency",
+        "drift_score": 0.2568533994437277,
+        "psi": 0.11547242881718035,
+        "ks_stat": 0.0128,
+        "ks_pvalue": 0.9980493809188692,
+        "abs_mean_shift_sigma": 0.12858097062654736,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "close_skew_w5",
+        "drift_score": 0.22925981116126654,
+        "psi": 0.0190339037417384,
+        "ks_stat": 0.053,
+        "ks_pvalue": 0.011740862111874327,
+        "abs_mean_shift_sigma": 0.06760797953369378,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "slope_linreg_w20",
+        "drift_score": 0.20543392071752392,
+        "psi": 0.017351734898910145,
+        "ks_stat": 0.052,
+        "ks_pvalue": 0.014220677578511589,
+        "abs_mean_shift_sigma": 0.07224601455231873,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "macd_signal",
+        "drift_score": 0.18806627432714063,
+        "psi": 0.017831179199403243,
+        "ks_stat": 0.047,
+        "ks_pvalue": 0.035096378864793956,
+        "abs_mean_shift_sigma": 0.06822659756680562,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "rsi_14",
+        "drift_score": 0.17600916145280054,
+        "psi": 0.014849276961543834,
+        "ks_stat": 0.0401,
+        "ks_pvalue": 0.1051103281278748,
+        "abs_mean_shift_sigma": 0.06438164315691719,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_mean_w20",
+        "drift_score": 0.17527558618566835,
+        "psi": 0.011711852036635818,
+        "ks_stat": 0.0464,
+        "ks_pvalue": 0.038876094984438656,
+        "abs_mean_shift_sigma": 0.06296850371738455,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_cumulative_w20",
+        "drift_score": 0.17402948472579768,
+        "psi": 0.01183099427430201,
+        "ks_stat": 0.0464,
+        "ks_pvalue": 0.038876094984438656,
+        "abs_mean_shift_sigma": 0.06276210757204549,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "macd",
+        "drift_score": 0.1695165404899584,
+        "psi": 0.01339657421920705,
+        "ks_stat": 0.0392,
+        "ks_pvalue": 0.11973092465345256,
+        "abs_mean_shift_sigma": 0.07335999663642175,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "close_vs_open_w20",
+        "drift_score": 0.15314266364030277,
+        "psi": 0.010279961637696674,
+        "ks_stat": 0.0359,
+        "ks_pvalue": 0.18813828308613914,
+        "abs_mean_shift_sigma": 0.06227393706323446,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "slope_linreg_w50",
+        "drift_score": 0.14851855483344228,
+        "psi": 0.01481780979345578,
+        "ks_stat": 0.0412,
+        "ks_pvalue": 0.08928176850383357,
+        "abs_mean_shift_sigma": 0.05618397922578631,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_after_headline_mean",
+        "drift_score": 0.14540610139648044,
+        "psi": 0.01758030637618672,
+        "ks_stat": 0.0511,
+        "ks_pvalue": 0.016844731873660874,
+        "abs_mean_shift_sigma": 0.05597201812328106,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_mean_w50",
+        "drift_score": 0.1441777630740546,
+        "psi": 0.008495144416222402,
+        "ks_stat": 0.0372,
+        "ks_pvalue": 0.1582177989798526,
+        "abs_mean_shift_sigma": 0.06090736475138165,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "t49_count_total",
+        "drift_score": 0.14341423584577176,
+        "psi": 0.011230385567525845,
+        "ks_stat": 0.0124,
+        "ks_pvalue": 0.9988093234918949,
+        "abs_mean_shift_sigma": 0.11978385027824591,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "return_cumulative_w50",
+        "drift_score": 0.14301313409211938,
+        "psi": 0.007927107824415325,
+        "ks_stat": 0.0359,
+        "ks_pvalue": 0.18813828308613914,
+        "abs_mean_shift_sigma": 0.06073035763513969,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "t35_amplitude_sum_weighted",
+        "drift_score": 0.14200370996330006,
+        "psi": 0.005504053033287455,
+        "ks_stat": 0.0302,
+        "ks_pvalue": 0.3723037733541463,
+        "abs_mean_shift_sigma": 0.10629965693001261,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "bollinger_width_20",
+        "drift_score": 0.14026128064365478,
+        "psi": 0.014257503001131525,
+        "ks_stat": 0.0426,
+        "ks_pvalue": 0.07207208469713593,
+        "abs_mean_shift_sigma": 0.04125380064072317,
+        "drift_reasons": ""
+      },
+      {
+        "feature": "close_std_w20",
+        "drift_score": 0.14026128061909782,
+        "psi": 0.014257503001131525,
+        "ks_stat": 0.0426,
+        "ks_pvalue": 0.07207208469713593,
+        "abs_mean_shift_sigma": 0.041253800627798064,
+        "drift_reasons": ""
+      }
+    ],
+    "thresholds": {
+      "psi_warn": 0.2,
+      "ks_warn": 0.2,
+      "ks_pvalue_warn": 0.01,
+      "mean_shift_warn_sigma": 1.0
+    }
+  },
+  "extra": {
+    "median_psi": 0.004137055396691011,
+    "median_ks_stat": 0.01865,
+    "median_abs_mean_shift_sigma": 0.025040686598496086,
+    "median_similarity_score": 0.9483856177529892,
+    "n_features": 262
+  }
+}
