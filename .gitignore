@@ -1,6 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-catboost_info/
-models/oof/
-.DS_Store
