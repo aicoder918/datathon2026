@@ -112,21 +112,79 @@ We submitted a large batch of pre-generated candidates, including:
 
 ## Current best (public leaderboard)
 
-**Best observed public score**: **2.91264** (rank 5 of LB)
+**Best observed public score**: **2.92344** (rank 5)
 
-- **File**: `datathon2026/submissions/champ_plus_ridgehl_a3k_870_130.csv`
-- **Kaggle description**: `headline 87/13 (peak zoom)`
-- **Composition**: `0.87 * champ + 0.13 * ridge_hl_a3000` where
-  - `champ = submission_best_plus_ridge_top10_935_065.csv` (was 2.90305)
-  - `ridge_hl_a3000 = submissions/ridge_hl_a3000.csv` — ridge over per-headline
-    features (template/sector/region one-hots + bar_ix + log$amt + pct + finbert
-    sentiment + session cum_ret + rolling vol) predicting forward-5-bar return,
-    aggregated per session via exp recency sum, shaped via thresholded_inv_vol.
-    Training script: `run_headline_model.py`.
+- **File**: `datathon2026/submissions/champ_plus_interv1v2_k3_ens_800_200.csv`
+- **Kaggle description**: `k3 interv1+interv2 avg 80/20`
+- **Composition**: `0.80 * champ + 0.20 * HL_k3_interv12`
+  - `champ = submission_best_plus_ridge_top10_935_065.csv` (2.90305)
+  - HL branch = avg of:
+    - `ridge_hl_inter_k3_a{3000,10000,30000}` → ensemble (v1 interactions = tid×bar, tid×sec)
+    - `ridge_hl_interv2_k3_a{3000,10000,30000}` → ensemble (v2 interactions adds sec×bar, reg×bar)
+  - HL branch predicts per-headline forward **K=3** return, aggregated per
+    session via exp(-(49-bar)/10) recency weights, shaped via
+    thresholded_inv_vol (q=0.35, shrink 0.5, short_floor 0.30).
+  - Training scripts: `run_headline_interactions.py`, `run_hl_inter_v2.py`.
 
-**Weight sweep evidence (robust, not an LB spike)**:
-- 98/2: 2.90568 · 95/5: 2.90890 · 90/10: 2.91213 · 87/13: **2.91264** · 85/15: 2.91233 · 80/20: 2.90907
-- 3-branch base + HL @87/13: 2.91239 (confirms cross-base robustness)
+## Progression timeline
+
+| Step | LB |
+|---|---|
+| Initial champion (ridge_top10 blend) | 2.90305 |
+| 3-branch (base + rt10 + ra50) | 2.90306 |
+| +per-headline ridge (K=5) 87/13 | 2.91264 |
+| +HL-interactions (tid×bar, tid×sec) 85/15 | 2.91515 |
+| +HL-inter triple-alpha ensemble (3k/10k/30k) 85/15 | 2.91913 |
+| +weight 80/20 (triple ens, K=5) | 2.91981 |
+| +K=3 triple ensemble (shorter horizon) 80/20 | 2.92327 |
+| +v1+v2 interactions ensemble (K=3) 80/20 | **2.92344** |
+
+## Models trained in this session
+
+See scripts in `datathon2026/`:
+- `run_headline_model.py` — base HL features (80 cols) + ridge
+- `run_headline_interactions.py` — adds tid×bar, tid×sec interactions (930 cols)
+- `run_hl_inter_v2.py` — adds sec×bar, reg×bar interactions (996 cols)
+- `run_headline_catboost.py` — catboost on base 80
+- `run_hl_cat_inter.py` — catboost on 930 interactions
+- `run_hl_ssl.py` — semi-supervised pseudo-labels (train+public)
+- `run_hl_stack.py` — session-level meta-learner
+- `run_rich_meta.py` — ridge on 40-feat + HL-summary meta
+- `run_headline_clf.py` — logistic classifier on sign(fwd K=5)
+- `run_headline_multi.py` — K=3, K=10, session-end variants
+- `run_barex_ridge.py`, `run_rank_ridge.py`, `run_mlm_ridge.py` — pre-HL
+  orthogonal-branch probes (all failed)
+
+## What has been confirmed to NOT help on top of the HL-k3 winner
+
+Marginal hurts (ordered by how much they lost vs 2.92344):
+- More alphas in the HL ensemble (a1k, a100k, a300k) — dilutes sweet spot
+- Adding cat_hl (base 80) to HL ensemble — weaker, dilutes
+- Adding catboost-on-interactions — 2.91685
+- Ensembling K=3 with K=5/K=10 — K=3 alone wins
+- Different recency tau (5/20/50) — tau=10 is optimal
+- Shaping variants (threshold/shrink/short_floor off default) — default wins
+- ElasticNet, LogReg on interactions — ridge wins
+- Session-end target with interactions — drift-dominated, hurts
+- Stack meta-learner (session aggregates of HL preds) — weaker standalone
+- Rich meta-learner (40 base + HL summary) — standalone 2.618, blend hurts
+- MLM embeddings, rank-transformed ridge, per-bar-expanded ridge — all hurt
+- Cap/amp/power/shrink transforms on champion — all hurt
+- Bagging (10×80% subsets) the HL model — no gain (99.5% corr)
+
+## Current leaderboard (as of last poll)
+
+```
+1. ManMan      2.93850
+2. qperjg      2.93132
+3. orionic     2.93128
+4. [deleted]   2.92840
+5. US          2.92344  ← current
+6. Manfredinibus 2.92144
+7. Lennart H   2.91633
+```
+
+Gap to rank 4: +0.00496. Gap to rank 1: +0.01506.
 
 ## Historical runner-up (pre-headline-model plateau): **2.90306**
 
